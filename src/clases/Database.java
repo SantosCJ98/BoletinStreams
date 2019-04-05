@@ -2,8 +2,11 @@ package clases;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Database {
@@ -56,6 +59,10 @@ public class Database {
 
 		bd.showStudentsSinceFirstNotLegalAgeOne();
 
+		System.out.println();
+		
+		bd.showDifferentSubjectsOrderedAlphabetically();
+		
 		System.out.println();
 
 		bd.showStudentsGrantsAndSum();
@@ -127,6 +134,16 @@ public class Database {
 	}
 
 	// Pendiente el 7 ".flatMap(alumno -> alumno.getNotas().stream())"
+	
+	public void showDifferentSubjectsOrderedAlphabetically() {
+		
+		System.out.println("Asignaturas:");
+		
+		alumnos.stream().map(alumno -> alumno.getNotas()).flatMap(alumno -> alumno.stream()).sorted((x, y) -> x.getAsignatura().compareTo(y.getAsignatura())).map(nota -> nota.getAsignatura()).distinct().forEach(System.out::println);
+		
+		
+		
+	}
 
 	public void showStudentsGrantsAndSum() {
 
@@ -160,8 +177,19 @@ public class Database {
 	
 	public void showOldestStudentOlderThan23() {
 		
-		Stream<Student> condicion = alumnos.stream().filter(edad -> edad.getEdad() == alumnos.stream().mapToInt(alumno -> Integer.valueOf(alumno.getEdad())).max().getAsInt() && edad.getEdad() > 23);
+		System.out.print("Alumno más veterano mayor de 23: ");
 		
+		if (alumnos.stream().anyMatch(edad -> edad.getEdad() == alumnos.stream().mapToInt(alumno -> Integer.valueOf(alumno.getEdad())).max().getAsInt() && edad.getEdad() > 23)) {
+			
+			alumnos.stream().filter(edad -> edad.getEdad() == alumnos.stream().mapToInt(alumno -> Integer.valueOf(alumno.getEdad())).max().getAsInt() && edad.getEdad() > 23).forEach(alumno -> System.out.println(alumno.getNombre()));
+			
+		}
+		
+		else {
+			
+			System.out.println("No encontrado");
+			
+		}
 		
 	}
 	
