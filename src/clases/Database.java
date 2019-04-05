@@ -3,6 +3,7 @@ package clases;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class Database {
@@ -125,7 +126,7 @@ public class Database {
 
 	}
 
-	// Pendiente el 7
+	// Pendiente el 7 ".flatMap(alumno -> alumno.getNotas().stream())"
 
 	public void showStudentsGrantsAndSum() {
 
@@ -134,7 +135,7 @@ public class Database {
 		alumnos.stream().forEach(alumno -> System.out.println(alumno.getNombre() + ": " + alumno.getBeca()));
 
 		System.out.printf("Suma de becas: %d",
-				alumnos.stream().mapToInt(alumno -> Integer.valueOf(alumno.getBeca())).sum());
+				alumnos.stream().mapToInt(alumno -> alumno.getBeca()).sum());
 
 	}
 
@@ -152,14 +153,15 @@ public class Database {
 
 	// alumnos.stream().mapToInt(alumno -> Integer.valueOf(alumno.getEdad())).min(); Edad
 		
-		alumnos.stream().filter(edad -> edad.getEdad() == alumnos.stream().mapToInt(alumno -> Integer.valueOf(alumno.getEdad())).min().getAsInt()).forEach(nombre -> System.out.println("Alumno más joven: " + nombre.getNombre()));;
+		alumnos.stream().filter(edad -> edad.getEdad() == alumnos.stream().mapToInt(alumno -> alumno.getEdad()).min().getAsInt()).forEach(nombre -> System.out.println("Alumno más joven: " + nombre.getNombre()));;
 
 	}
 	
 	
 	public void showOldestStudentOlderThan23() {
 		
-		alumnos.stream().filter(edad -> edad.getEdad() == alumnos.stream().mapToInt(alumno -> Integer.valueOf(alumno.getEdad())).max().getAsInt() && edad.getEdad() > 23).forEach(nombre -> System.out.println("Alumno más veterano mayor de 23: " + nombre.getNombre()));
+		Stream<Student> condicion = alumnos.stream().filter(edad -> edad.getEdad() == alumnos.stream().mapToInt(alumno -> Integer.valueOf(alumno.getEdad())).max().getAsInt() && edad.getEdad() > 23);
+		
 		
 	}
 	
