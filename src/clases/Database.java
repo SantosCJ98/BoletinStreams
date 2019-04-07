@@ -2,6 +2,7 @@ package clases;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.TreeMap;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -17,7 +19,7 @@ public class Database {
 	public List<Student> queryAllStudents() {
 		
 		List<Student> alumnos = new ArrayList<>();
-
+		
 		alumnos.add(new Student(1L, "Germán Ginés", 23, "1º CFGS DAM", 2000,
 				Arrays.asList(new Grade("PROGR", 8), new Grade("LM", 3))));
 
@@ -107,6 +109,10 @@ public class Database {
 		System.out.println();
 		
 		bd.showNumberOfSubjectsOfEachStudent();
+		
+		System.out.println();
+	
+		bd.showNumberOfPassersStudentsOfEachSubject();
 
 	}
 
@@ -319,6 +325,24 @@ public class Database {
 			System.out.println("Número de asignaturas de cada alumno: ");
 			
 			queryAllStudents().stream().forEach(x -> System.out.printf("%s: %d\n", x.getNombre(), x.getNotas().size()));
+			
+		}
+		
+		public void showNumberOfPassersStudentsOfEachSubject() {
+			
+			Stream<Grade> asignaturas = queryAllStudents().stream().map(alumno -> alumno.getNotas()).flatMap(alumno -> alumno.stream()).sorted((x, y) -> x.getAsignatura().compareTo(y.getAsignatura()));
+			
+			
+			Map<String, Long> mapastream = new TreeMap<>(asignaturas.collect(Collectors.groupingBy(nota -> nota.getAsignatura(), Collectors.filtering(a -> a.getNota() >= 5, Collectors.counting()))));
+		
+			
+			for (Map.Entry<String, Long> mapa : mapastream.entrySet()) {
+			    System.out.printf("%s -  %d aprobados\n", mapa.getKey(), mapa.getValue());
+			}
+		
+			
+			
+			
 			
 		}
 		

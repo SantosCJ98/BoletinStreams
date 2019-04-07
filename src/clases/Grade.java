@@ -43,7 +43,7 @@ public class Grade {
 		return asignatura;
 	}
 
-	private float getNota() {
+	float getNota() {
 		return nota;
 	}
 
