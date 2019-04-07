@@ -83,7 +83,7 @@ public class Student {
 		return edad;
 	}
 
-	private String getGrupo() {
+	String getGrupo() {
 		return grupo;
 	}
 
