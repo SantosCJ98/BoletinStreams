@@ -21,12 +21,6 @@ public class Database {
 
 	Database() {
 
-		alumnos = queryAllStudents();
-
-	}
-
-	public List<Student> queryAllStudents() {
-
 		alumnos = new ArrayList<>();
 
 		alumnos.add(new Student(1L, "Germán Ginés", 23, "1º CFGS DAM", 2000,
@@ -37,324 +31,144 @@ public class Database {
 
 		alumnos.add(new Student(3L, "Ana Guerra", 17, "1º CFGS SMR", 4000, Arrays.asList(new Grade("PROGR", 8))));
 
+	}
+
+	public List<Student> queryAllStudents() {
+
+		
+
 		return alumnos;
 
 	}
 
-	public static void main(String args[]) {
+	public long LegalAgeStudentCount() {
 
-		Database bd = new Database();
-
-		bd.showLegalAgeStudentCount();
-
-		System.out.println();
-
-		bd.showStudentNamesOrderAlphabetically();
-
-		System.out.println();
-
-		bd.showFistTwoStudentsNames();
-
-		System.out.println();
-
-		bd.showStudentsNamesExceptTheFistOne();
-
-		System.out.println();
-
-		bd.showStudentsNamesUntilFirstNotLegalAgeOne();
-
-		System.out.println();
-
-		bd.showStudentsSinceFirstNotLegalAgeOne();
-
-		System.out.println();
-
-		bd.showDifferentSubjectsOrderedAlphabetically();
-
-		System.out.println();
-
-		bd.showStudentsGrantsAndSum();
-
-		System.out.println();
-
-		bd.getStudentsOlderThan20();
-
-		System.out.println();
-
-		bd.showYoungestStudentName();
-
-		System.out.println();
-
-		bd.showOldestStudentOlderThan23();
-
-		System.out.println();
-
-		bd.showStudentNamesWithCommasOrderedByAge();
-
-		System.out.println();
-
-		bd.showStudentCountInEachGroup();
-
-		System.out.println();
-
-		bd.showGrantSummary();
-
-		System.out.println();
-
-		bd.showAreAnyStudentUnderLegalAge();
-
-		System.out.println();
-
-		bd.showAllStudentHaveGrant();
-
-		System.out.println();
-
-		bd.showFirstStudentWithoutGrant();
-
-		System.out.println();
-
-		bd.showHowManyStudentWithOrWithoutGrant();
-
-		System.out.println();
-
-		bd.showNumberOfSubjectsOfEachStudent();
-
-		System.out.println();
-
-		bd.showNumberOfPassersStudentsOfEachSubject();
+				return alumnos.stream().filter(edad -> edad.getEdad() >= 18).count();
 
 	}
 
-	public void showLegalAgeStudentCount() {
+	public Stream<Student> StudentNamesOrderAlphabetically() {
 
-		System.out.printf("Número de alumnos mayores de edad: %d\n",
-
-				alumnos.stream().filter(edad -> edad.getEdad() >= 18).count());
+		return alumnos.stream().sorted((x, y) -> x.getNombre().compareTo(y.getNombre()));
 
 	}
 
-	public void showStudentNamesOrderAlphabetically() {
+	public Stream<Student> FistTwoStudentsNames() {
 
-		System.out.println("Nombres de alumnos (Orden alfabético):");
-
-		alumnos.stream().sorted((x, y) -> x.getNombre().compareTo(y.getNombre()))
-				.forEach(nombre -> System.out.println(nombre.getNombre()));
+		return alumnos.stream().limit(2);
 
 	}
 
-	public void showFistTwoStudentsNames() {
+	public Stream<Student> StudentsNamesExceptTheFistOne() {
 
-		System.out.println("Nombres de los dos primeros alumnos:");
-
-		alumnos.stream().limit(2).forEach(alumno -> System.out.println(alumno.getNombre()));
+		return alumnos.stream().skip(1);
 
 	}
 
-	public void showStudentsNamesExceptTheFistOne() {
+	public Stream<Student> StudentsNamesUntilFirstNotLegalAgeOne() {
 
-		System.out.println("Nombres de los alumnos: (Excepto el primero)");
-
-		alumnos.stream().skip(1).forEach(alumno -> System.out.println(alumno.getNombre()));
-
-	}
-
-	public void showStudentsNamesUntilFirstNotLegalAgeOne() {
-
-		System.out.println("Nombre de los alumnos (hasta que encontramos uno menor de edad):");
-
-		alumnos.stream().takeWhile(alumno -> alumno.getEdad() >= 18)
-				.forEach(alumno -> System.out.println(alumno.getNombre()));
+		return alumnos.stream().takeWhile(alumno -> alumno.getEdad() >= 18);
+				
 
 	}
 
-	public void showStudentsSinceFirstNotLegalAgeOne() {
+	public Stream<Student> StudentsSinceFirstNotLegalAgeOne() {
 
-		System.out.println("Nombre de los alumnos (desde que encontramos uno menor de edad):");
-
-		alumnos.stream().dropWhile(alumno -> alumno.getEdad() >= 18)
-				.forEach(alumno -> System.out.println(alumno.getNombre()));
+		return alumnos.stream().dropWhile(alumno -> alumno.getEdad() >= 18);
 
 	}
 
-	public void showDifferentSubjectsOrderedAlphabetically() {
+	public Stream<String> DifferentSubjectsOrderedAlphabetically() {
 
-		System.out.println("Asignaturas:");
-
-		alumnos.stream().map(alumno -> alumno.getNotas()).flatMap(alumno -> alumno.stream())
+		return alumnos.stream().map(alumno -> alumno.getNotas()).flatMap(alumno -> alumno.stream())
 				.sorted((x, y) -> x.getAsignatura().compareTo(y.getAsignatura())).map(nota -> nota.getAsignatura())
-				.distinct().forEach(System.out::println);
+				.distinct();
 
 	}
 
-	public void showStudentsGrantsAndSum() {
+	public List<String> StudentsOlderThan20() {
 
-		System.out.println("Becas:");
-
-		alumnos.stream().forEach(alumno -> System.out.println(alumno.getNombre() + ": " + alumno.getBeca()));
-
-		System.out.printf("Suma de becas: %d", alumnos.stream().mapToInt(alumno -> alumno.getBeca()).sum());
+		return alumnos.stream().filter(alumno -> alumno.getEdad() >= 20).map(x -> x.getNombre()).collect(Collectors.toList());
 
 	}
 
-	public List<String> getStudentsOlderThan20() {
+	public Stream<Student> YoungestStudentName() {
 
-		List<String> lista = new ArrayList<>();
-
-		alumnos.stream().filter(alumno -> alumno.getEdad() >= 20).forEach(alumno -> lista.add(alumno.getNombre()));
-
-		return lista;
+		return alumnos.stream().filter(
+				edad -> edad.getEdad() == alumnos.stream().mapToInt(alumno -> alumno.getEdad()).min().getAsInt());
 
 	}
 
-	public void showYoungestStudentName() {
-
-
-		alumnos.stream().filter(
-				edad -> edad.getEdad() == alumnos.stream().mapToInt(alumno -> alumno.getEdad()).min().getAsInt())
-				.forEach(nombre -> System.out.println("Alumno más joven: " + nombre.getNombre()));
-		;
-
-	}
-
-	public void showOldestStudentOlderThan23() {
-
-		System.out.print("Alumno más veterano mayor de 23: ");
-		
-		boolean condicion = (alumnos.stream().anyMatch(edad -> edad.getEdad() == alumnos.stream()
-				.mapToInt(alumno -> Integer.valueOf(alumno.getEdad())).max().getAsInt() && edad.getEdad() > 23));
-
-		if (condicion) {
-
-			alumnos.stream()
-					.filter(edad -> edad.getEdad() == alumnos.stream()
-							.mapToInt(alumno -> Integer.valueOf(alumno.getEdad())).max().getAsInt()
-							&& edad.getEdad() > 23)
-					.forEach(alumno -> System.out.println(alumno.getNombre()));
-
-		}
-
-		else {
-
-			System.out.println("No encontrado");
-
-		}
-
-	}
-
-	public void showStudentNamesWithCommasOrderedByAge() {
-
-		System.out.print("Alumnos: ");
+	public String StudentNamesWithCommasOrderedByAge() {
 
 		String separadoporcomas = alumnos.stream()
 				.sorted((x, y) -> Integer.valueOf(x.getEdad()).compareTo(Integer.valueOf(y.getEdad())))
 				.map(alumno -> alumno.getNombre()).collect(Collectors.joining(", "));
 
-		System.out.println(separadoporcomas);
+		return separadoporcomas;
 	}
 
-	public void showStudentCountInEachGroup() {
+	public TreeMap<String, Long> StudentCountInEachGroup() {
 
-		System.out.println("Número de alumnos en cada grupo:");
-
-		Map<String, Long> mapastream = new TreeMap<>(
+		return new TreeMap<>(
 				alumnos.stream().collect(Collectors.groupingBy(alumno -> alumno.getGrupo(), Collectors.counting())));
 
-		for (Map.Entry<String, Long> mapa : mapastream.entrySet()) {
-			System.out.println(mapa.getKey() + ": " + mapa.getValue() + " alumnos");
-		}
-
 	}
 
-	public void showGrantSummary() {
+	public IntSummaryStatistics GrantSummary() {
 
-		System.out.println("Estadística de becas:");
-
-		IntSummaryStatistics calculos = alumnos.stream().collect(Collectors.summarizingInt(a -> (int) a.getBeca()));
-
-		System.out.printf("Máxima: %d, Mínima: %d, Media: %.2f\n", calculos.getMax(), calculos.getMin(),
-				calculos.getAverage());
-
+		return alumnos.stream().collect(Collectors.summarizingInt(a -> a.getBeca()));
+		
+		
+		
 	}
 
-	public void showAreAnyStudentUnderLegalAge() {
+	public boolean AreAnyStudentUnderLegalAge() {
 
-		System.out.print("¿Algún alumno menor de edad? ");
-
-		if (alumnos.stream().anyMatch(x -> x.getEdad() < 18)) {
-
-			System.out.println("Sí");
-
-		}
-
-		else {
-
-			System.out.println("No");
-
-		}
-
+		return alumnos.stream().anyMatch(x -> x.getEdad() < 18);
 	}
 
-	public void showAllStudentHaveGrant() {
-
-		System.out.print("¿Todos los alumnos tienen beca? ");
+	public boolean AllStudentHaveGrant() {
 
 		if (alumnos.stream().allMatch(x -> x.getBeca() > 0)) {
 
-			System.out.println("Sí");
+			return true;
 
 		}
 
 		else {
 
-			System.out.println("No");
+			return false;
 
 		}
 
 	}
 
-	public void showFirstStudentWithoutGrant() {
-
-		System.out.print("Nombre del primer alumno sin beca: ");
+	public Stream<Student> FirstStudentWithoutGrant() {
 
 		Optional<Student> primeracoincidencia = alumnos.stream().filter(x -> x.getBeca() == 0).findFirst();
 
-		primeracoincidencia.stream().forEach(x -> System.out.println(x.getNombre()));
+		return primeracoincidencia.stream();
 
 	}
 
-	public void showHowManyStudentWithOrWithoutGrant() {
+	public Map<Boolean, Long> HowManyStudentWithOrWithoutGrant() {
 
-		System.out.println("Alumnos con o sin beca");
-
-		Map<Boolean, Long> mapastream = alumnos.stream()
+		return alumnos.stream()
 				.collect(Collectors.partitioningBy(alumno -> alumno.getBeca() > 0, Collectors.counting()));
 
-		for (Map.Entry<Boolean, Long> mapa : mapastream.entrySet()) {
-			System.out.printf("%s: %d\n", mapa.getKey() ? "Con beca" : "Sin beca", mapa.getValue());
 		}
 
-	}
+	
 
-	public void showNumberOfSubjectsOfEachStudent() {
-
-		System.out.println("Número de asignaturas de cada alumno: ");
-
-		alumnos.stream().forEach(x -> System.out.printf("%s: %d\n", x.getNombre(), x.getNotas().size()));
-
-	}
-
-	public void showNumberOfPassersStudentsOfEachSubject() {
+	public Map<String, Long> NumberOfPassersStudentsOfEachSubject() {
 
 		Stream<Grade> asignaturas = alumnos.stream().map(alumno -> alumno.getNotas()).flatMap(alumno -> alumno.stream())
 				.sorted((x, y) -> x.getAsignatura().compareTo(y.getAsignatura()));
 
-		Map<String, Long> mapastream = new TreeMap<>(asignaturas.collect(Collectors.groupingBy(
+		return new TreeMap<>(asignaturas.collect(Collectors.groupingBy(
 				nota -> nota.getAsignatura(), Collectors.filtering(a -> a.getNota() >= 5, Collectors.counting()))));
 
-		for (Map.Entry<String, Long> mapa : mapastream.entrySet()) {
-			System.out.printf("%s -  %d aprobados\n", mapa.getKey(), mapa.getValue());
 		}
 
 	}
-
-}
