@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.IntSummaryStatistics;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,146 +31,121 @@ public class Database {
 		alumnos.add(new Student(2L, "Baldomero", 21, "1º CFGS DAM", 0,
 				Arrays.asList(new Grade("PROGR", 5), new Grade("LM", 4))));
 
-		alumnos.add(new Student(3L, "Ana Guerra", 17, "1º CFGS SMR", 4000, Arrays.asList(new Grade("PROGR", 8))));
+		alumnos.add(new Student(3L, "Ana Guerra", 17, "1º CFGM SMR", 4000, Arrays.asList(new Grade("PROGR", 8))));
 
 	}
 
 	public List<Student> queryAllStudents() {
 
-		
-
 		return alumnos;
 
 	}
 
-	public long LegalAgeStudentCount() {
+	public long legalAgeStudentCount() {
 
-				return alumnos.stream().filter(edad -> edad.getEdad() >= 18).count();
+		return alumnos.stream().filter(edad -> edad.getEdad() >= 18).count();
 
 	}
 
-	public Stream<Student> StudentNamesOrderAlphabetically() {
+	public Stream<Student> studentNamesOrderAlphabetically() {
 
 		return alumnos.stream().sorted((x, y) -> x.getNombre().compareTo(y.getNombre()));
 
 	}
 
-	public Stream<Student> FistTwoStudentsNames() {
+	public Stream<Student> fistTwoStudentsNames() {
 
 		return alumnos.stream().limit(2);
 
 	}
 
-	public Stream<Student> StudentsNamesExceptTheFistOne() {
+	public Stream<Student> studentsNamesExceptTheFistOne() {
 
 		return alumnos.stream().skip(1);
 
 	}
 
-	public Stream<Student> StudentsNamesUntilFirstNotLegalAgeOne() {
+	public Stream<Student> studentsNamesUntilFirstNotLegalAgeOne() {
 
 		return alumnos.stream().takeWhile(alumno -> alumno.getEdad() >= 18);
-				
 
 	}
 
-	public Stream<Student> StudentsSinceFirstNotLegalAgeOne() {
+	public Stream<Student> studentsSinceFirstNotLegalAgeOne() {
 
 		return alumnos.stream().dropWhile(alumno -> alumno.getEdad() >= 18);
 
 	}
 
-	public Stream<String> DifferentSubjectsOrderedAlphabetically() {
+	public Stream<String> differentSubjectsOrderedAlphabetically() {
 
-		return alumnos.stream().map(alumno -> alumno.getNotas()).flatMap(alumno -> alumno.stream())
-				.sorted((x, y) -> x.getAsignatura().compareTo(y.getAsignatura())).map(nota -> nota.getAsignatura())
-				.distinct();
-
-	}
-
-	public List<String> StudentsOlderThan20() {
-
-		return alumnos.stream().filter(alumno -> alumno.getEdad() >= 20).map(x -> x.getNombre()).collect(Collectors.toList());
+		return alumnos.stream().flatMap(alumno -> alumno.getNotas().stream()).map(nota -> nota.getAsignatura())
+				.distinct().sorted();
 
 	}
 
-	public Stream<Student> YoungestStudentName() {
+	public List<String> studentsOlderThan20() {
+
+		return alumnos.stream().filter(alumno -> alumno.getEdad() >= 20).map(x -> x.getNombre())
+				.collect(Collectors.toList());
+
+	}
+
+	public Stream<Student> youngestStudentName() {
 
 		return alumnos.stream().filter(
 				edad -> edad.getEdad() == alumnos.stream().mapToInt(alumno -> alumno.getEdad()).min().getAsInt());
 
 	}
 
-	public String StudentNamesWithCommasOrderedByAge() {
+	public String studentNamesWithCommasOrderedByAge() {
 
-		String separadoporcomas = alumnos.stream()
-				.sorted((x, y) -> Integer.valueOf(x.getEdad()).compareTo(Integer.valueOf(y.getEdad())))
-				.map(alumno -> alumno.getNombre()).collect(Collectors.joining(", "));
-
-		return separadoporcomas;
+		return alumnos.stream().sorted(Comparator.comparingInt(Student::getEdad)).map(Student::getNombre)
+				.collect(Collectors.joining(", "));
 	}
 
-	public TreeMap<String, Long> StudentCountInEachGroup() {
+	public TreeMap<String, Long> studentCountInEachGroup() {
 
-		return new TreeMap<>(
-				alumnos.stream().collect(Collectors.groupingBy(alumno -> alumno.getGrupo(), Collectors.counting())));
+		return new TreeMap<>(alumnos.stream().sorted(Comparator.comparing(Student::getGrupo))
+				.collect(Collectors.groupingBy(Student::getGrupo, Collectors.counting())));
 
 	}
 
-	public IntSummaryStatistics GrantSummary() {
+	public IntSummaryStatistics grantSummary() {
 
-		return alumnos.stream().collect(Collectors.summarizingInt(a -> a.getBeca()));
-		
-		
-		
+		return alumnos.stream().collect(Collectors.summarizingInt(Student::getBeca));
+
 	}
 
-	public boolean AreAnyStudentUnderLegalAge() {
+	public boolean areAnyStudentUnderLegalAge() {
 
 		return alumnos.stream().anyMatch(x -> x.getEdad() < 18);
 	}
 
-	public boolean AllStudentHaveGrant() {
+	public boolean allStudentHaveGrant() {
 
-		if (alumnos.stream().allMatch(x -> x.getBeca() > 0)) {
-
-			return true;
-
-		}
-
-		else {
-
-			return false;
-
-		}
+		return alumnos.stream().allMatch(x -> x.getBeca() > 0);
 
 	}
 
-	public Stream<Student> FirstStudentWithoutGrant() {
+	public Optional<Student> firstStudentWithoutGrant() {
 
-		Optional<Student> primeracoincidencia = alumnos.stream().filter(x -> x.getBeca() == 0).findFirst();
-
-		return primeracoincidencia.stream();
+		return alumnos.stream().filter(x -> x.getBeca() == 0).findFirst();
 
 	}
 
-	public Map<Boolean, Long> HowManyStudentWithOrWithoutGrant() {
+	public Map<Boolean, Long> howManyStudentWithOrWithoutGrant() {
 
 		return alumnos.stream()
 				.collect(Collectors.partitioningBy(alumno -> alumno.getBeca() > 0, Collectors.counting()));
 
-		}
+	}
 
-	
+	public Map<String, Long> numberOfPassersStudentsOfEachSubject() {
 
-	public Map<String, Long> NumberOfPassersStudentsOfEachSubject() {
-
-		Stream<Grade> asignaturas = alumnos.stream().map(alumno -> alumno.getNotas()).flatMap(alumno -> alumno.stream())
-				.sorted((x, y) -> x.getAsignatura().compareTo(y.getAsignatura()));
-
-		return new TreeMap<>(asignaturas.collect(Collectors.groupingBy(
-				nota -> nota.getAsignatura(), Collectors.filtering(a -> a.getNota() >= 5, Collectors.counting()))));
-
-		}
+		return new TreeMap<>(alumnos.stream().flatMap(alumno -> alumno.getNotas().stream()).collect(Collectors
+				.groupingBy(Grade::getAsignatura, Collectors.filtering(a -> a.getNota() >= 5, Collectors.counting()))));
 
 	}
+
+}

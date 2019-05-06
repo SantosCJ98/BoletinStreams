@@ -1,5 +1,6 @@
 package clases;
 
+import java.util.Comparator;
 import java.util.IntSummaryStatistics;
 import java.util.Map;
 import java.util.Optional;
@@ -10,10 +11,10 @@ import java.util.stream.Stream;
 public class Mostrar {
 
 	Database bd = new Database();
-	
+
 	public void showLegalAgeStudentAgeCount() {
 
-		System.out.printf("%s: %d\n", "Número de alumnos mayores de edad", bd.LegalAgeStudentCount());
+		System.out.printf("%s: %d\n", "Número de alumnos mayores de edad", bd.legalAgeStudentCount());
 
 	}
 
@@ -21,7 +22,7 @@ public class Mostrar {
 
 		System.out.println("Nombres de alumnos (Orden alfabético):");
 
-		bd.StudentNamesOrderAlphabetically().forEach(nombre -> System.out.println(nombre.getNombre()));
+		bd.studentNamesOrderAlphabetically().forEach(nombre -> System.out.println(nombre.getNombre()));
 
 	}
 
@@ -29,7 +30,7 @@ public class Mostrar {
 
 		System.out.println("Nombres de los dos primeros alumnos:");
 
-		bd.FistTwoStudentsNames().forEach(alumno -> System.out.println(alumno.getNombre()));
+		bd.fistTwoStudentsNames().forEach(alumno -> System.out.println(alumno.getNombre()));
 
 	}
 
@@ -37,7 +38,7 @@ public class Mostrar {
 
 		System.out.println("Nombres de los alumnos: (Excepto el primero)");
 
-		bd.StudentsNamesExceptTheFistOne().forEach(alumno -> System.out.println(alumno.getNombre()));
+		bd.studentsNamesExceptTheFistOne().forEach(alumno -> System.out.println(alumno.getNombre()));
 
 	}
 
@@ -45,23 +46,23 @@ public class Mostrar {
 
 		System.out.println("Nombre de los alumnos (hasta que encontramos uno menor de edad):");
 
-		bd.StudentsNamesUntilFirstNotLegalAgeOne().forEach(alumno -> System.out.println(alumno.getNombre()));
+		bd.studentsNamesUntilFirstNotLegalAgeOne().forEach(alumno -> System.out.println(alumno.getNombre()));
 
 	}
-	
+
 	public void showDifferentSubjectsOrderedAlphabetically() {
-		
+
 		System.out.println("Asignaturas:");
-		
-		bd.DifferentSubjectsOrderedAlphabetically().forEach(System.out::println);
-		
+
+		bd.differentSubjectsOrderedAlphabetically().forEach(System.out::println);
+
 	}
 
 	public void showStudentsSinceFirstNotLegalAgeOne() {
 
 		System.out.println("Nombre de los alumnos (desde que encontramos uno menor de edad):");
 
-		bd.StudentsSinceFirstNotLegalAgeOne().forEach(alumno -> System.out.println(alumno.getNombre()));
+		bd.studentsSinceFirstNotLegalAgeOne().forEach(alumno -> System.out.println(alumno.getNombre()));
 
 	}
 
@@ -69,132 +70,132 @@ public class Mostrar {
 
 		System.out.println("Becas:");
 
-		bd.queryAllStudents().stream()
-				.forEach(alumno -> System.out.println(alumno.getNombre() + ": " + alumno.getBeca()));
+		/*
+		 * 
+		 * bd.queryAllStudents().stream() .forEach(alumno ->
+		 * System.out.println(alumno.getNombre() + ": " + alumno.getBeca()));
+		 * 
+		 * System.out.printf("Suma de becas: %d\n",
+		 * bd.queryAllStudents().stream().mapToInt(alumno -> alumno.getBeca()).sum());
+		 * 
+		 */
 
-		System.out.printf("Suma de becas: %d\n",
-				bd.queryAllStudents().stream().mapToInt(alumno -> alumno.getBeca()).sum());
+		int suma = bd.queryAllStudents().stream()
+				.peek(alumno -> System.out.printf("%s: %d\n", alumno.getNombre(), alumno.getBeca()))
+				.mapToInt(Student::getBeca).sum();
 
+		System.out.printf("Suma de becas: %d\n", suma);
 	}
-	
+
 	public void getStudentsOlderThan20() {
-		
-		System.out.println(bd.StudentsOlderThan20());
-		
+
+		System.out.println(bd.studentsOlderThan20());
+
 	}
-	
+
 	public void showYoungestStudentName() {
 
-		bd.YoungestStudentName().forEach(nombre -> System.out.println("Alumno más joven: " + nombre.getNombre()));
+		// bd.youngestStudentName().forEach(nombre -> System.out.println("Alumno más
+		// joven: " + nombre.getNombre()));
+
+		String nombre = bd.queryAllStudents().stream().min(Comparator.comparingInt(Student::getEdad))
+				.map(Student::getNombre).orElse("No encontrado");
+
+		System.out.printf("Alumno más joven: %s\n", nombre);
 
 	}
-	
+
 	public void showOldestStudentOlderThan23() {
 
-		System.out.print("Alumno más veterano mayor de 23: ");
+		// System.out.print("Alumno más veterano mayor de 23: ");
 
-		boolean condicion = (bd.queryAllStudents().stream().anyMatch(edad -> edad.getEdad() == bd.queryAllStudents().stream()
-				.mapToInt(alumno -> Integer.valueOf(alumno.getEdad())).max().getAsInt() && edad.getEdad() > 23));
+		/*
+		 * boolean condicion = (bd.queryAllStudents().stream() .anyMatch(edad ->
+		 * edad.getEdad() == bd.queryAllStudents().stream() .mapToInt(alumno ->
+		 * Integer.valueOf(alumno.getEdad())).max().getAsInt() && edad.getEdad() > 23));
+		 * 
+		 * if (condicion) {
+		 * 
+		 * bd.queryAllStudents().stream() .filter(edad -> edad.getEdad() ==
+		 * bd.queryAllStudents().stream() .mapToInt(alumno ->
+		 * Integer.valueOf(alumno.getEdad())).max().getAsInt() && edad.getEdad() > 23)
+		 * .forEach(alumno -> System.out.println(alumno.getNombre()));
+		 * 
+		 * }
+		 * 
+		 * else {
+		 * 
+		 * System.out.println("No encontrado");
+		 * 
+		 * }
+		 * 
+		 */
 
-		if (condicion) {
+		String resultado = bd.queryAllStudents().stream().filter(alumno -> alumno.getEdad() > 23)
+				.max(Comparator.comparingInt(Student::getEdad)).map(Student::getNombre).orElse("No encontrado");
 
-			bd.queryAllStudents().stream()
-					.filter(edad -> edad.getEdad() == bd.queryAllStudents().stream()
-							.mapToInt(alumno -> Integer.valueOf(alumno.getEdad())).max().getAsInt()
-							&& edad.getEdad() > 23)
-					.forEach(alumno -> System.out.println(alumno.getNombre()));
-
-		}
-
-		else {
-
-			System.out.println("No encontrado");
-
-		}
+		System.out.printf("Alumno más veterano mayor de 23: %s\n", resultado);
 
 	}
-	
+
 	public void showStudentNamesWithCommasOrderedByAge() {
-		
+
 		System.out.print("Alumnos: ");
 
-		System.out.println(bd.StudentNamesWithCommasOrderedByAge());
-		
+		System.out.println(bd.studentNamesWithCommasOrderedByAge());
+
 	}
-	
+
 	public void showStudentCountInEachGroup() {
 
 		System.out.println("Número de alumnos en cada grupo:");
 
-		for (Map.Entry<String, Long> mapa : bd.StudentCountInEachGroup().entrySet()) {
-			System.out.println(mapa.getKey() + ": " + mapa.getValue() + " alumnos");
+		for (Map.Entry<String, Long> mapa : bd.studentCountInEachGroup().entrySet()) {
+			System.out.printf("%s: %d %s\n", mapa.getKey(), mapa.getValue(),
+					mapa.getValue() == 1 ? "alumno" : "alumnos");
 		}
 
 	}
-	
+
 	public void showGrantSummary() {
 
 		System.out.println("Estadística de becas:");
 
-		System.out.printf("Máxima: %d, Mínima: %d, Media: %.2f\n", bd.GrantSummary().getMax(), bd.GrantSummary().getMin(),
-				bd.GrantSummary().getAverage());
+		System.out.printf("Máxima: %d, Mínima: %d, Media: %.2f\n", bd.grantSummary().getMax(),
+				bd.grantSummary().getMin(), bd.grantSummary().getAverage());
 
 	}
-	
+
 	public void showAreAnyStudentUnderLegalAge() {
 
-		System.out.print("¿Algún alumno menor de edad? ");
-
-		if (bd.AreAnyStudentUnderLegalAge()) {
-
-			System.out.println("Sí");
-
-		}
-
-		else {
-
-			System.out.println("No");
-
-		}
+		System.out.printf("¿Algún alumno menor de edad?: %s\n", bd.areAnyStudentUnderLegalAge() ? "Sí" : "No");
 
 	}
-	
+
 	public void showAllStudentHaveGrant() {
 
-		System.out.print("¿Todos los alumnos tienen beca? ");
-
-		if (bd.AllStudentHaveGrant()) {
-
-			System.out.println("Sí");
-
-		}
-
-		else {
-
-			System.out.println("No");
-
-		}
+		System.out.printf("¿Todos los alumnos tienen beca?: %s\n", bd.allStudentHaveGrant() ? "Sí" : "No");
 
 	}
-	
+
 	public void showFirstStudentWithoutGrant() {
 
-		System.out.print("Nombre del primer alumno sin beca: ");
-
-		bd.FirstStudentWithoutGrant().forEach(x -> System.out.println(x.getNombre()));
+		System.out.printf("Nombre del primer alumno sin beca: %s\n",
+				bd.firstStudentWithoutGrant().isPresent() ? bd.firstStudentWithoutGrant().get().getNombre()
+						: "No encontrado");
 
 	}
-	
+
 	public void showHowManyStudentWithOrWithoutGrant() {
 
 		System.out.println("Alumnos con o sin beca");
 
-		for (Map.Entry<Boolean, Long> mapa : bd.HowManyStudentWithOrWithoutGrant().entrySet()) {
+		for (Map.Entry<Boolean, Long> mapa : bd.howManyStudentWithOrWithoutGrant().entrySet()) {
 			System.out.printf("%s: %d\n", mapa.getKey() ? "Con beca" : "Sin beca", mapa.getValue());
 		}
 
 	}
-	
+
 	public void showNumberOfSubjectsOfEachStudent() {
 
 		System.out.println("Número de asignaturas de cada alumno: ");
@@ -202,10 +203,10 @@ public class Mostrar {
 		bd.queryAllStudents().stream().forEach(x -> System.out.printf("%s: %d\n", x.getNombre(), x.getNotas().size()));
 
 	}
-	
+
 	public void showNumberOfPassersStudentsOfEachSubject() {
 
-		for (Map.Entry<String, Long> mapa : bd.NumberOfPassersStudentsOfEachSubject().entrySet()) {
+		for (Map.Entry<String, Long> mapa : bd.numberOfPassersStudentsOfEachSubject().entrySet()) {
 			System.out.printf("%s -  %d aprobados\n", mapa.getKey(), mapa.getValue());
 		}
 
